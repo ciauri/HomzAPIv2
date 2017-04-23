@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>hostname</key>
+	<string>your.hostname.here</string>
+	<key>port</key>
+	<string>1337</string>
+	<key>db_host</key>
+	<string>127.0.0.1</string>
+	<key>db_port</key>
+	<string>3306</string>
+	<key>db_username</key>
+	<string>rando</string>
+	<key>db_password</key>
+	<string>yolobogocholo</string>
+	<key>db_name</key>
+	<string>solo</string>
+</dict>
+</plist>
