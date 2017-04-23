@@ -32,4 +32,4 @@ If you would like to develop in Xcode:
 - If you're using Xcode for development, make sure you Edit Scheme -> Arguments -> add the `-config path/to/config.plist` as a command line argument
 
 ## Test Deployment
-You can hit up the (sample environment)[http://api.newhomz.com:8181/v1/listings/featured] if you want to see this puppy in action with a live database
+You can hit up the [sample environment](http://api.newhomz.com:8181/v1/listings/featured) if you want to see this puppy in action with a live database
