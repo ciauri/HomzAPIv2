@@ -115,12 +115,12 @@ class Listing: JSONConvertibleObject {
             "links": links,
             "name": name,
             "builderID": builderId,
-            "coordinate": [Double(coordinate.x), Double(coordinate.y)],
-            "price": [price.lowerBound, price.upperBound],
+            "coordinate": ["latitude":Double(coordinate.x), "longitude":Double(coordinate.y)],
+            "price": ["min":price.lowerBound, "max":price.upperBound],
             "priceText": priceText,
-            "squareFootage": [squareFootage.lowerBound, squareFootage.upperBound],
-            "bedrooms": [bedrooms.lowerBound, bedrooms.upperBound],
-            "bathrooms": [Double(bathrooms.lowerBound), Double(bathrooms.upperBound)],
+            "squareFootage": ["min":squareFootage.lowerBound, "max":squareFootage.upperBound],
+            "bedrooms": ["min":bedrooms.lowerBound, "max":bedrooms.upperBound],
+            "bathrooms": ["min":Double(bathrooms.lowerBound), "max":Double(bathrooms.upperBound)],
             "featuredPhoto": featuredPhoto ?? "",
             "status": status.rawValue
         ]
