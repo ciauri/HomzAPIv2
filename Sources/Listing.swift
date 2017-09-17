@@ -48,6 +48,17 @@ class Listing: JSONConvertibleObject {
         case inactive
         case active
         case featured
+        
+        var jsonValue: String {
+            switch self {
+            case .inactive:
+                return "INACTIVE"
+            case .active:
+                return "ACTIVE"
+            case .featured:
+                return "FEATURED"
+            }
+        }
     }
 
     init(withSparseResult result: [String:String]) {
@@ -121,10 +132,12 @@ class Listing: JSONConvertibleObject {
             "squareFootage": ["min":squareFootage.lowerBound, "max":squareFootage.upperBound],
             "bedrooms": ["min":bedrooms.lowerBound, "max":bedrooms.upperBound],
             "bathrooms": ["min":Double(bathrooms.lowerBound), "max":Double(bathrooms.upperBound)],
-            "featuredPhoto": featuredPhoto ?? "",
-            "status": status.rawValue
+            "status": status.jsonValue
         ]
         
+        if let featuredPhoto = featuredPhoto {
+            json["featuredPhoto"] = featuredPhoto
+        }
 
         if !sparseEntity {
             if let builder = builder {
@@ -137,10 +150,16 @@ class Listing: JSONConvertibleObject {
                 "schoolDistrictName": schoolDistrictName,
                 "propertyType": propertyType,
                 "email": email,
-                "website": website ?? "",
-                "video": video ?? "",
                 "phone": phone
             ]
+            
+            if let website = website {
+                json["website"] = website
+            }
+            if let video = video {
+                json["video"] = video
+            }
+            
             json += extendedFields
         }
         return json

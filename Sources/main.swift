@@ -22,6 +22,9 @@ class NewHomzAPI {
         var routes = Routes(baseUri: baseUri)
         routes.add(ListingResource.routes)
         routes.add(BuilderResource.routes)
+        routes.add(InitializationResource.routes)
+        
+        
         
         server = HTTPServer()
         server.addRoutes(routes)

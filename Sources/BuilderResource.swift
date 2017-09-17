@@ -11,23 +11,25 @@ import PerfectHTTP
 import PerfectLib
 
 class BuilderResource {
+    // MARK: - Routes
+    
+    // MARK: Root Routes
     static let allRoute = Route(method: .get, uri: "/builders", handler: allHandler)
     static let featuredRoute = Route(method: .get, uri: "/builders/featured", handler: featuredHandler)
+    
+    // MARK: Delivered Routes
     static let idRoute = Route(method: .get, uri: "/builder/{id}", handler: idHandler)
     static let listingsRoute = Route(method: .get, uri: "/builder/{id}/listings", handler: listingsHandler)
-
-    
-    class var routes: [Route] {
-        return [allRoute,featuredRoute,idRoute,listingsRoute]
-    }
     
     class func allHandler(request: HTTPRequest, response: HTTPResponse) {
         response.setHeader(.contentType, value: "application/json")
+//        response.setHeader(.cacheControl, value: "max-age=3600")
         getBuilders(response: response)
     }
     
     class func idHandler(request: HTTPRequest, response: HTTPResponse) {
         response.setHeader(.contentType, value: "application/json")
+//        response.setHeader(.cacheControl, value: "max-age=3600")
         guard let id = request.urlVariables["id"]?.intValue else {
             response.completed(status: .badRequest)
             return
@@ -37,11 +39,13 @@ class BuilderResource {
     
     class func featuredHandler(request: HTTPRequest, response: HTTPResponse) {
         response.setHeader(.contentType, value: "application/json")
+//        response.setHeader(.cacheControl, value: "max-age=3600")
         getFeaturedBuilders(response: response)
     }
     
     class func listingsHandler(request: HTTPRequest, response: HTTPResponse) {
         response.setHeader(.contentType, value: "application/json")
+//        response.setHeader(.cacheControl, value: "max-age=3600")
         guard let id = request.urlVariables["id"]?.intValue else {
             response.completed(status: .badRequest)
             return
@@ -77,7 +81,7 @@ class BuilderResource {
                 response.completed(status: .internalServerError)
                 return
             }
-            response.appendBody(jsonRepresentable: builders)
+            response.appendBody(jsonRepresentable: ["builders":builders])
             response.completed(status: .ok)
         }
     }
@@ -89,7 +93,7 @@ class BuilderResource {
                 response.completed(status: .internalServerError)
                 return
             }
-            response.appendBody(jsonRepresentable: builders)
+            response.appendBody(jsonRepresentable: ["builders":builders])
             response.completed(status: .ok)
         }
     }
@@ -101,9 +105,19 @@ class BuilderResource {
                 response.completed(status: .internalServerError)
                 return
             }
-            response.appendBody(jsonRepresentable: listings)
+            response.appendBody(jsonRepresentable: ["listings":listings])
             response.completed(status: .ok)
         }
     }
     
+}
+
+
+extension BuilderResource: Resource {
+    class var routes: [Route] {
+        return [allRoute,featuredRoute,idRoute,listingsRoute]
+    }
+    class var rootRoutes: [Route] {
+        return [allRoute, featuredRoute]
+    }
 }

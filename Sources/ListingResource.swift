@@ -11,20 +11,21 @@ import PerfectHTTP
 import PerfectLib
 
 class ListingResource {
+    // MARK: - Routes
+    // MARK: Root Routes
     static let mapRoute = Route(method: .get, uri: "/listings", handler: mapHandler)
     static let featuredRoute = Route(method: .get, uri: "/listings/featured", handler: featuredHandler)
+    
+    // MARK: Delivered Routes
     static let idRoute = Route(method: .get, uri: "/listing/{id}", handler: listingHandler)
     static let galleryRoute = Route(method: .get, uri: "/listing/{id}/gallery", handler: galleryRequestHandler)
     static let floorplansRoute = Route(method: .get, uri: "/listing/{id}/floorplans", handler: floorplanRequestHandler)
     static let informationRequestRoute = Route(method: .put, uri: "/listing/{id}/infoRequest", handler: informationRequestHandler)
     
-    class var routes: [Route] {
-        return [mapRoute,featuredRoute,idRoute, informationRequestRoute, floorplansRoute, galleryRoute]
-    }
-    
     // MARK: - Route Handlers
     class func mapHandler(request: HTTPRequest, response: HTTPResponse) {
         response.setHeader(.contentType, value: "application/json")
+//        response.setHeader(.cacheControl, value: "max-age=3600")
         let params = request.queryParams.toDictionary
         guard
             let latStart = params["latStart"]?.doubleValue,
@@ -40,6 +41,7 @@ class ListingResource {
     
     class func listingHandler(request: HTTPRequest, response: HTTPResponse) {
         response.setHeader(.contentType, value: "application/json")
+//        response.setHeader(.cacheControl, value: "max-age=3600")
         guard let id = request.urlVariables["id"]?.intValue else {
             response.completed(status: .badRequest)
             return
@@ -49,6 +51,7 @@ class ListingResource {
     
     class func featuredHandler(request: HTTPRequest, response: HTTPResponse) {
         response.setHeader(.contentType, value: "application/json")
+//        response.setHeader(.cacheControl, value: "max-age=3600")
         getFeaturedListings(response: response)
     }
     
@@ -67,6 +70,7 @@ class ListingResource {
     
     class func galleryRequestHandler(request: HTTPRequest, response: HTTPResponse) {
         response.setHeader(.contentType, value: "application/json")
+//        response.setHeader(.cacheControl, value: "max-age=3600")
         guard let id = request.urlVariables["id"]?.intValue else {
             response.completed(status: .badRequest)
             return
@@ -76,6 +80,7 @@ class ListingResource {
     
     class func floorplanRequestHandler(request: HTTPRequest, response: HTTPResponse) {
         response.setHeader(.contentType, value: "application/json")
+//        response.setHeader(.cacheControl, value: "max-age=3600")
         guard let id = request.urlVariables["id"]?.intValue else {
             response.completed(status: .badRequest)
             return
@@ -132,10 +137,20 @@ class ListingResource {
                 response.completed(status: .internalServerError)
                 return
             }
-            response.appendBody(jsonRepresentable: images)
+            let collectionName = type == .gallery ? "gallery" : "floorplans"
+            response.appendBody(jsonRepresentable: [collectionName:images])
             response.completed(status: .ok)
         })
     }
   
+}
+
+extension ListingResource : Resource {
+    class var routes: [Route] {
+        return [mapRoute,featuredRoute,idRoute, informationRequestRoute, floorplansRoute, galleryRoute]
+    }
+    class var rootRoutes: [Route] {
+        return [mapRoute, featuredRoute]
+    }
 }
 

@@ -53,7 +53,6 @@ class Builder: JSONConvertibleObject {
         if let website = website {
             json["website"] = website
         }
-
         return json
     }
 }
