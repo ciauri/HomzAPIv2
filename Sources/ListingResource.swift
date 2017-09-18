@@ -59,13 +59,11 @@ class ListingResource {
         guard
             let id = request.urlVariables["id"]?.intValue,
             let bytes = request.postBodyBytes,
-            let json = (try? JSONSerialization.jsonObject(with: Data(bytes), options: .allowFragments)) as? [String: String],
-            let payload = json["data"]
-            else {
-            response.completed(status: .badRequest)
-            return
+            let jsonString = String(bytes: bytes, encoding: .utf8) else {
+                response.completed(status: .badRequest)
+                return
         }
-        requestInformation(withId: id, payload: payload, response: response)
+        requestInformation(withId: id, payload: jsonString, response: response)
     }
     
     class func galleryRequestHandler(request: HTTPRequest, response: HTTPResponse) {
@@ -127,7 +125,7 @@ class ListingResource {
     
     class func requestInformation(withId id: Int, payload: String, response: HTTPResponse) {
         Listing.requestInformationForListing(withId: id, payload: payload)
-        response.completed(status: .ok)
+        response.completed(status: .noContent)
     }
     
     class func getImages(forListingId id: Int, type: Image.ImageType, response: HTTPResponse) {

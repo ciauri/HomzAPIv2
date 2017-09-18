@@ -235,9 +235,10 @@ extension Listing {
     
     class func requestInformationForListing(withId id: Int, payload: String, in database: Database = Database()) {
         let timestamp = Int(Date().timeIntervalSince1970)
+        // NOTE: Square brackets around payload are for legacy database schema compatibility with scripts and other parts of the application
         let statement =
             "INSERT INTO requests (ts, data) " +
-            "VALUES (\(timestamp), '\(payload)')"
+            "VALUES (\(timestamp), '[\(payload)]')"
         database.performQuery(statement: statement) { (results) in
             NSLog("Inserted stuff?")
         }
