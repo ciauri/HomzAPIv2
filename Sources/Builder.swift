@@ -11,6 +11,7 @@ import PerfectLib
 
 class Builder: JSONConvertibleObject {
     static let columns = ["id", "builder", "phone", "fax", "email", "paid", "photo", "website", "ads_enabled"]
+    static let computedColumns = ["activeListingCount" : "count(distinct l.id) as activeListingCount"]
     
     var id: Int = -1
     var name: String = ""
@@ -21,6 +22,7 @@ class Builder: JSONConvertibleObject {
     var email: String = ""
     var paid: Bool = false
     var adsEnabled: Bool = true
+    var activeListingCount: Int = 0
         
     init(withResult result: [String:String]) {
         super.init()
@@ -33,6 +35,7 @@ class Builder: JSONConvertibleObject {
         paid = result["paid"]?.intValue == 1
         website = result["website"]?.urlValue
         logo = result["photo"]?.urlValue
+        activeListingCount = result["activeListingCount"]?.intValue ?? 0
     }
     
     override func getJSONValues() -> [String : Any] {
@@ -45,7 +48,8 @@ class Builder: JSONConvertibleObject {
             "fax": fax,
             "email": email,
             "paid": paid,
-            "ads_enabled": adsEnabled
+            "ads_enabled": adsEnabled,
+            "activeListingCount": activeListingCount
         ]
         if let logo = logo {
             json["logo"] = logo
@@ -69,9 +73,10 @@ extension Builder: RESTEntity {
 
 // MARK: - Routes
 extension Builder {
+
     class func getBuilder(byId id: Int, in database: Database = Database(), completion: @escaping ([Builder]?)->()) {
         let statement =
-            "SELECT \(columns.joined(separator: ",")) " +
+            "SELECT \(columns.joined(separator: ",")), (SELECT COUNT(1) FROM listings WHERE builderId = builders.id AND active > 0) AS activeListingCount " +
             "FROM builders " +
             "WHERE id = \(id)"
         
@@ -79,17 +84,30 @@ extension Builder {
     }
     
     class func getFeaturedBuilders(in database: Database = Database(), completion: @escaping ([Builder]?)->()) {
+        let builderQueryColumns = columns.map({"builders.\($0) as \($0)"})
+        let queryColumns = (builderQueryColumns + computedColumns.values).joined(separator: ",")
         let statement =
-            "SELECT \(columns.joined(separator: ",")) " +
+            "SELECT \(queryColumns) " +
             "FROM builders " +
-            "WHERE paid = 1"
+            "INNER JOIN listings l " +
+            "ON builders.id = l.builderId " +
+            "WHERE l.active > 0 AND builders.paid = 1 " +
+            "GROUP BY builders.id"
+        
         fetchBuilders(from: database, withStatement: statement, completion: completion)
     }
     
     class func getBuilders(in database: Database = Database(), completion: @escaping ([Builder]?)->()) {
+        let builderQueryColumns = columns.map({"builders.\($0) as \($0)"})
+        let queryColumns = (builderQueryColumns + computedColumns.values).joined(separator: ",")
         let statement =
-            "SELECT \(columns.joined(separator: ",")) " +
-            "FROM builders "
+            "SELECT \(queryColumns) " +
+            "FROM builders " +
+            "INNER JOIN listings l " +
+            "ON builders.id = l.builderId " +
+            "WHERE l.active > 0 " +
+            "GROUP BY builders.id"
+        
         fetchBuilders(from: database, withStatement: statement, completion: completion)
     }
     
@@ -104,7 +122,7 @@ extension Builder {
             }
             var builders: [Builder] = []
             for row in results {
-                let builderDict = Dictionary<String, String>.combining(keyArray: columns, valueArray: row)
+                let builderDict = Dictionary<String, String>.combining(keyArray: columns + computedColumns.keys, valueArray: row)
                 let builder = Builder(withResult: builderDict)
                 builders.append(builder)
             }
