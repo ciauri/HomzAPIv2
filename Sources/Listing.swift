@@ -43,6 +43,10 @@ class Listing: JSONConvertibleObject {
     var website: URL?
     var video: URL?
     var phone: String = ""
+    var city: String = ""
+    var county: String = ""
+    var state: String = ""
+    var zip: String = ""
 
     enum Status: Int {
         case inactive
@@ -117,6 +121,10 @@ class Listing: JSONConvertibleObject {
         phone = result["phone"] ?? phone
         video = result["vid"]?.urlValue ?? video
         schoolDistrictName = result["schoolDistrictName"] ?? schoolDistrictName
+        city = result["city"] ?? city
+        county = result["county"] ?? county
+        state = result["state"] ?? state
+        zip = result["zip"] ?? zip
     }
     
     override func getJSONValues() -> [String : Any] {
@@ -150,7 +158,11 @@ class Listing: JSONConvertibleObject {
                 "schoolDistrictName": schoolDistrictName,
                 "propertyType": propertyType,
                 "email": email,
-                "phone": phone
+                "phone": phone,
+                "city": city,
+                "county": county,
+                "state": state,
+                "zip":zip
             ]
             
             if let website = website {
