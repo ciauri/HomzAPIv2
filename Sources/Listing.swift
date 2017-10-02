@@ -241,7 +241,7 @@ extension Listing {
             "SELECT \(allColumns.joined(separator: ",")) " +
             "FROM listings " +
             "WHERE listings.builderID = \(id) " +
-            "AND active > 1"
+            "AND active > 0"
         fetchListings(from: database, withStatement: statement, sparseResults: true, completion: completion)
     }
     
