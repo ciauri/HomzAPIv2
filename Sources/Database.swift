@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import MySQL
+import PerfectMySQL
 import Dispatch
 
 class Database {

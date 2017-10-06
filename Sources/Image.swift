@@ -8,7 +8,7 @@
 
 import Foundation
 import PerfectLib
-import MySQL
+import PerfectMySQL
 
 class Image: JSONConvertibleObject {
     enum ImageType {

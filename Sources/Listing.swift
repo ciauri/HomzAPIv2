@@ -9,7 +9,7 @@
 import Foundation
 import PerfectLib
 import PerfectHTTPServer
-import MySQL
+import PerfectMySQL
 import Dispatch
 
 class Listing: JSONConvertibleObject {

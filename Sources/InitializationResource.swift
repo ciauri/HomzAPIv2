@@ -15,7 +15,10 @@ class InitializationResource {
     class func initHandler(request: HTTPRequest, response: HTTPResponse) {
         response.setHeader(.contentType, value: "application/json")
 //        response.setHeader(.cacheControl, value: "max-age=86400")
-        response.appendBody(jsonRepresentable: Initialization())
+        
+        let encoded = try! NewHomzAPI.shared.jsonEncoder.encode(Initialization())
+
+        response.appendBody(string: String(data: encoded, encoding: .utf8)!)
         
         response.completed(status: .ok)
     }

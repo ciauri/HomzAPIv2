@@ -14,6 +14,7 @@ import Foundation
 class NewHomzAPI {
     static let shared = NewHomzAPI()
     private(set) var server: HTTPServer
+    let jsonEncoder = JSONEncoder()
     private(set) var baseURL: URL
     private let baseUri = "/v1"
     private(set) var config: [String:Any]?

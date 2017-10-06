@@ -9,7 +9,7 @@ import Foundation
 import PerfectLib
 
 class Initialization: JSONConvertibleObject {
-    
+
     override func getJSONValues() -> [String : Any] {
         return [
             "href": href ?? "",
@@ -31,4 +31,19 @@ extension Initialization: RESTEntity {
             "featuredBuilders" : BuilderResource.featuredRoute.absoluteURLString.urlValue!
         ]
     }
+}
+
+extension Initialization: Encodable {
+    fileprivate enum CodingKeys: String, CodingKey {
+        case href
+        case links
+    }
+
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(href, forKey: .href)
+        try container.encode(links, forKey: .links)
+    }
+
+
 }
