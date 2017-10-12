@@ -8,16 +8,9 @@
 import Foundation
 import PerfectLib
 
-class Initialization: JSONConvertibleObject {
+class Initialization {}
 
-    override func getJSONValues() -> [String : Any] {
-        return [
-            "href": href ?? "",
-            "links": links
-        ]
-    }
-}
-
+// MARK: - RESTEntity
 extension Initialization: RESTEntity {
     var href: URL? {
         return NewHomzAPI.shared.baseURL
@@ -33,7 +26,9 @@ extension Initialization: RESTEntity {
     }
 }
 
+// MARK: - Encodable
 extension Initialization: Encodable {
+    
     fileprivate enum CodingKeys: String, CodingKey {
         case href
         case links
@@ -44,6 +39,5 @@ extension Initialization: Encodable {
         try container.encode(href, forKey: .href)
         try container.encode(links, forKey: .links)
     }
-
 
 }

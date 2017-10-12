@@ -9,66 +9,85 @@
 import Foundation
 import PerfectLib
 
-class Builder: JSONConvertibleObject {
+class Builder {
     static let columns = ["id", "builder", "phone", "fax", "email", "paid", "photo", "website", "ads_enabled"]
     static let computedColumns = ["activeListingCount" : "count(distinct l.id) as activeListingCount"]
     
-    var id: Int = -1
-    var name: String = ""
+    var id: Int
+    var name: String
     var logo: URL?
     var website: URL?
-    var phone: String = ""
-    var fax: String = ""
-    var email: String = ""
+    var phone: String?
+    var fax: String?
+    var email: String?
     var paid: Bool = false
     var adsEnabled: Bool = true
-    var activeListingCount: Int = 0
+    var activeListingCount: Int?
         
-    init(withResult result: [String:String]) {
-        super.init()
-        id = result["id"]?.intValue ?? id
-        name = result["builder"] ?? name
-        phone = result["phone"] ?? phone
-        fax = result["fax"] ?? fax
-        email = result["email"] ?? email
+    init?(withResult result: [String:String]) {
+        guard let id = result["id"]?.intValue,
+            let name = result["builder"] else {
+                return nil
+        }
+        self.id = id
+        self.name = name
+        phone = result["phone"]
+        fax = result["fax"]
+        email = result["email"]
         adsEnabled = result["ads_enabled"]?.intValue == 1
         paid = result["paid"]?.intValue == 1
         website = result["website"]?.urlValue
         logo = result["photo"]?.urlValue
-        activeListingCount = result["activeListingCount"]?.intValue ?? 0
+        activeListingCount = result["activeListingCount"]?.intValue
+    }
+}
+
+extension Builder: Encodable {
+    fileprivate enum CodingKeys: String, CodingKey {
+        case id
+        case name
+        case logo
+        case website
+        case phone
+        case fax
+        case email
+        case paid
+        case adsEnabled = "ads_enabled"
+        case activeListingCount
+        case links
+        case href
     }
     
-    override func getJSONValues() -> [String : Any] {
-        var json: [String:Any] = [
-            "id": id,
-            "href": href ?? "",
-            "links": links,
-            "name": name,
-            "phone": phone,
-            "fax": fax,
-            "email": email,
-            "paid": paid,
-            "ads_enabled": adsEnabled,
-            "activeListingCount": activeListingCount
-        ]
-        if let logo = logo {
-            json["logo"] = logo
-        }
-        if let website = website {
-            json["website"] = website
-        }
-        return json
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(id, forKey: .id)
+        try container.encode(links, forKey: .links)
+        try container.encode(href, forKey: .href)
+        
+        try container.encode(name, forKey: .name)
+        try container.encode(logo, forKey: .logo)
+        try container.encode(website, forKey: .website)
+        try container.encode(phone, forKey: .phone)
+        try container.encode(fax, forKey: .fax)
+        try container.encode(email, forKey: .email)
+        try container.encode(paid, forKey: .paid)
+        try container.encode(adsEnabled, forKey: .adsEnabled)
+        try container.encodeIfPresent(activeListingCount, forKey: .activeListingCount)
     }
 }
 
 extension Builder: RESTEntity {
     var href: URL? {
-        return NewHomzAPI.shared.baseURL.appendingPathComponent(BuilderResource.idRoute.uri.replacingOccurrences(of: "{id}", with: "\(id)"), isDirectory: false)
+        return NewHomzAPI.shared.baseURL.appendingPathComponent(BuilderResource.idRoute.uri.replacingOccurrences(of: "{id}", with: "\(id ?? -1)"), isDirectory: false)
     }
     
     var links: [String:URL] {
         return ["listings":href!.appendingPathComponent("listings", isDirectory: false)]
     }
+}
+
+struct BuilderList: Encodable {
+    let builders: [Builder]
 }
 
 // MARK: - Routes
@@ -123,8 +142,9 @@ extension Builder {
             var builders: [Builder] = []
             for row in results {
                 let builderDict = Dictionary<String, String>.combining(keyArray: columns + computedColumns.keys, valueArray: row)
-                let builder = Builder(withResult: builderDict)
-                builders.append(builder)
+                if let builder = Builder(withResult: builderDict) {
+                    builders.append(builder)
+                }
             }
             completion(builders)
         })

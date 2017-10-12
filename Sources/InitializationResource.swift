@@ -15,10 +15,13 @@ class InitializationResource {
     class func initHandler(request: HTTPRequest, response: HTTPResponse) {
         response.setHeader(.contentType, value: "application/json")
 //        response.setHeader(.cacheControl, value: "max-age=86400")
-        
-        let encoded = try! NewHomzAPI.shared.jsonEncoder.encode(Initialization())
-
-        response.appendBody(string: String(data: encoded, encoding: .utf8)!)
+        do {
+            try response.appendBody(encodable: Initialization())
+        } catch {
+            NSLog("Failed to serialize listings")
+            response.completed(status: .internalServerError)
+            return
+        }
         
         response.completed(status: .ok)
     }

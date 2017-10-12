@@ -79,6 +79,14 @@ extension HTTPResponse {
             NSLog("unknown")
         }
     }
+    
+    func appendBody<T: Encodable>(encodable object: T) throws {
+        let encoded = try NewHomzAPI.shared.jsonEncoder.encode(object)
+        guard let encodedString = String(data: encoded, encoding: .utf8) else {
+            throw JSONConversionError.notConvertible(encoded)
+        }
+        appendBody(string: encodedString)
+    }
 }
 
 extension Route {
@@ -100,4 +108,22 @@ struct MapRegion: CustomStringConvertible {
     var latitudeEnd: Double
     var longitudeBegin: Double
     var longitudeEnd: Double
+}
+
+struct Coordinate: Codable {
+    public let latitude: Double
+    public let longitude: Double
+}
+
+struct NumberRange: Codable {
+    public let min: Float
+    public let max: Float
+    
+    public var rangeString: String {
+        return "\(min) - \(max)"
+    }
+    
+    public var intRangeString: String {
+        return "\(Int(min)) - \(Int(max))"
+    }
 }

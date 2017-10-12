@@ -10,13 +10,18 @@ import Foundation
 import PerfectLib
 import PerfectMySQL
 
-class Image: JSONConvertibleObject {
+class Image: Encodable {
     enum ImageType {
         case gallery
         case floorplan
     }
-    
     static let columns = ["photo", "caption", "showOrder", "cID"]
+    
+    fileprivate enum CodingKeys: String, CodingKey {
+        case url
+        case position
+        case caption
+    }
     
     var url: URL
     var position: Int
@@ -32,18 +37,15 @@ class Image: JSONConvertibleObject {
         self.url = url
         self.position = result["showOrder"]?.intValue ?? 0
         self.listingId = listingId
-        super.init()
         caption = result["caption"] ?? caption
     }
+}
 
-    
-    override func getJSONValues() -> [String : Any] {
-        return [
-            "url": url.absoluteString,
-            "position": position,
-            "caption": caption
-        ]
-    }
+struct Gallery: Encodable {
+    let gallery: [Image]
+}
+struct Floorplans: Encodable {
+    let floorplans: [Image]
 }
 
 extension Image {

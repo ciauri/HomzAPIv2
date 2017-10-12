@@ -88,13 +88,19 @@ class ListingResource {
     
     // MARK: - Handler Helpers
     class func findListings(in region: MapRegion, response: HTTPResponse) {
-        Listing.findListings(in: region, sparseResults: true, completion: { listings in
+        Listing.findListings(in: region, sparseListings: true, completion: { listings in
             guard let listings = listings else {
                 NSLog("Error")
                 response.completed(status: .internalServerError)
                 return
             }
-            response.appendBody(jsonRepresentable: ["listings":listings])
+            do {
+                try response.appendBody(encodable: ListingList(listings: listings))
+            } catch {
+                NSLog("Failed to serialize listings")
+                response.completed(status: .internalServerError)
+                return
+            }
             response.completed(status: .ok)
         })
     }
@@ -106,7 +112,13 @@ class ListingResource {
                 response.completed(status: .internalServerError)
                 return
             }
-            response.appendBody(jsonRepresentable: listings.first ?? [])
+            do {
+                try response.appendBody(encodable: listings.first)
+            } catch {
+                NSLog("Failed to serialize listing")
+                response.completed(status: .internalServerError)
+                return
+            }
             response.completed(status: .ok)
         })
     }
@@ -118,7 +130,13 @@ class ListingResource {
                 response.completed(status: .internalServerError)
                 return
             }
-            response.appendBody(jsonRepresentable: ["listings":listings])
+            do {
+                try response.appendBody(encodable: ListingList(listings: listings))
+            } catch {
+                NSLog("Failed to serialize listings")
+                response.completed(status: .internalServerError)
+                return
+            }
             response.completed(status: .ok)
         })
     }
@@ -135,8 +153,19 @@ class ListingResource {
                 response.completed(status: .internalServerError)
                 return
             }
-            let collectionName = type == .gallery ? "gallery" : "floorplans"
-            response.appendBody(jsonRepresentable: [collectionName:images])
+            do {
+                switch type {
+                case .floorplan:
+                    try response.appendBody(encodable: Floorplans(floorplans: images))
+                case .gallery:
+                    try response.appendBody(encodable: Gallery(gallery: images))
+                }
+            } catch {
+                NSLog("Failed to serialize images")
+                response.completed(status: .internalServerError)
+                return
+            }
+            
             response.completed(status: .ok)
         })
     }

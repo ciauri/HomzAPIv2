@@ -69,7 +69,13 @@ class BuilderResource {
                 response.completed(status: .ok)
                 return
             }
-            response.appendBody(jsonRepresentable: builder)
+            do {
+                try response.appendBody(encodable: builder)
+            } catch {
+                NSLog("Failed to serialize builders")
+                response.completed(status: .internalServerError)
+                return
+            }
             response.completed(status: .ok)
         }
     }
@@ -81,7 +87,15 @@ class BuilderResource {
                 response.completed(status: .internalServerError)
                 return
             }
-            response.appendBody(jsonRepresentable: ["builders":builders])
+            let builderList = BuilderList(builders: builders)
+            do {
+                try response.appendBody(encodable: builderList)
+            } catch {
+                NSLog("Failed to serialize builders")
+                response.completed(status: .internalServerError)
+                return
+            }
+            
             response.completed(status: .ok)
         }
     }
@@ -93,7 +107,15 @@ class BuilderResource {
                 response.completed(status: .internalServerError)
                 return
             }
-            response.appendBody(jsonRepresentable: ["builders":builders])
+            let builderList = BuilderList(builders: builders)
+            do {
+                try response.appendBody(encodable: builderList)
+            } catch {
+                NSLog("Failed to serialize builders")
+                response.completed(status: .internalServerError)
+                return
+            }
+            
             response.completed(status: .ok)
         }
     }
@@ -105,7 +127,13 @@ class BuilderResource {
                 response.completed(status: .internalServerError)
                 return
             }
-            response.appendBody(jsonRepresentable: ["listings":listings])
+            do {
+                try response.appendBody(encodable: ListingList(listings: listings))
+            } catch {
+                NSLog("Failed to serialize listings")
+                response.completed(status: .internalServerError)
+                return
+            }
             response.completed(status: .ok)
         }
     }
